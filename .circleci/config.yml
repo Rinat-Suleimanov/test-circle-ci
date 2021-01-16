@@ -74,7 +74,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - build/libs/backend-core.jar
+            - build/libs
 
   build_image:
     machine:
@@ -83,6 +83,9 @@ jobs:
       - attach_workspace:
           at: .
       - checkout
+      - run:
+          name: List folder
+          command: ls -la build/libs
       - run:
           name: Build image
           command: docker build . --tag demo
