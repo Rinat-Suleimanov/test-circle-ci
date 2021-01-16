@@ -35,34 +35,6 @@ jobs:
           paths:
             - ~/.gradle
           key: gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
-  test:
-    machine:
-      image: ubuntu-2004:202010-01
-    environment:
-      _JAVA_OPTIONS: "-Xmx3g"
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
-            - gradle-repo-v1-{{ .Branch }}-
-            - gradle-repo-v1-
-      - run:
-          name: Run tests
-          command: ./gradlew test
-      - run:
-          name: Generate code coverage report
-          command:
-            ./gradlew jacocoTestReport
-      - store_test_results:
-          path: build/test-results/test
-      - store_artifacts:
-          path: build/jacocoHtml
-      - save_cache:
-          paths:
-            - ~/.gradle
-          key: gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
   build_artifact:
     machine:
       image: ubuntu-2004:202010-01
@@ -104,9 +76,11 @@ jobs:
 
 workflows:
   version: 2
-  pull_request:
+  pull_request_check:
     jobs:
-      - test
+      - check_pull_request:
+          <<: *main-ignore
+  dev_deployment:
+    jobs:
       - build_artifact:
-          requires:
-            - test
+          <<: *main-only
