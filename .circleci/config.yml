@@ -1,0 +1,70 @@
+main-ignore: &main-ignore
+  filters:
+    branches:
+      ignore: main
+
+main-only: &main-only
+  filters:
+    branches:
+      only: main
+
+version: 2.1
+orbs:
+  aws-ecr: circleci/aws-ecr@6.15.2
+jobs:
+  test:
+    machine:
+      image: ubuntu-2004:202010-01
+    environment:
+      _JAVA_OPTIONS: "-Xmx3g"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
+            - gradle-repo-v1-{{ .Branch }}-
+            - gradle-repo-v1-
+      - run:
+          name: Run tests
+          command: ./gradlew test
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
+  build_artifact:
+    machine:
+      image: ubuntu-2004:202010-01
+    environment:
+      _JAVA_OPTIONS: "-Xmx3g"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
+            - gradle-repo-v1-{{ .Branch }}-
+            - gradle-repo-v1-
+      - run:
+          name: Build artifact
+          command: ./gradlew build -x test
+      - store_artifacts:
+          path: build/libs
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build/libs/test-circle-ci.jar
+
+
+workflows:
+  version: 2
+  pull_request:
+    jobs:
+      - test
+      - build_artifact:
+          requires:
+            - test
