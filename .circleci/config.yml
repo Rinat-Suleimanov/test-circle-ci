@@ -89,4 +89,6 @@ workflows:
       - build_artifact:
           <<: *main-only
       - build_image:
+          requires:
+            - build_artifact
           <<: *main-only
