@@ -68,11 +68,15 @@ jobs:
           paths:
             - ~/.gradle
           key: gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
-      - persist_to_workspace:
-          root: .
-          paths:
-            - build/libs/test-circle-ci.jar
 
+  build_docker_image:
+    machine:
+      image: ubuntu-2004:202010-01
+    steps:
+      - checkout
+      - run:
+          name: Build image
+          command: docker build . --tag demo
 
 workflows:
   version: 2
