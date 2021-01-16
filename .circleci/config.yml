@@ -69,7 +69,7 @@ jobs:
             - ~/.gradle
           key: gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
 
-  build_docker_image:
+  build_image:
     machine:
       image: ubuntu-2004:202010-01
     steps:
@@ -87,4 +87,6 @@ workflows:
   dev_deployment:
     jobs:
       - build_artifact:
+          <<: *main-only
+      - build_image:
           <<: *main-only
