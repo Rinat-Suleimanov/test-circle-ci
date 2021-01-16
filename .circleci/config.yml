@@ -8,10 +8,33 @@ main-only: &main-only
     branches:
       only: main
 
+
 version: 2.1
 orbs:
   aws-ecr: circleci/aws-ecr@6.15.2
 jobs:
+  check_pull_request:
+    machine:
+      image: ubuntu-2004:202010-01
+    environment:
+      _JAVA_OPTIONS: "-Xmx3g"
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
+            - gradle-repo-v1-{{ .Branch }}-
+            - gradle-repo-v1-
+      - run:
+          name: Build
+          command: ./gradlew clean build
+      - store_test_results:
+          path: build/test-results/test
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
   test:
     machine:
       image: ubuntu-2004:202010-01
@@ -28,6 +51,14 @@ jobs:
       - run:
           name: Run tests
           command: ./gradlew test
+      - run:
+          name: Generate code coverage report
+          command:
+            ./gradlew jacocoTestReport
+      - store_test_results:
+          path: build/test-results/test
+      - store_artifacts:
+          path: build/jacocoHtml
       - save_cache:
           paths:
             - ~/.gradle
@@ -45,6 +76,17 @@ jobs:
             - gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
             - gradle-repo-v1-{{ .Branch }}-
             - gradle-repo-v1-
+      - run:
+          name: Run tests
+          command: ./gradlew clean test
+      - run:
+          name: Generate code coverage report
+          command:
+            ./gradlew jacocoTestReport
+      - store_test_results:
+          path: build/test-results/test
+      - store_artifacts:
+          path: build/jacocoHtml
       - run:
           name: Build artifact
           command: ./gradlew build -x test
