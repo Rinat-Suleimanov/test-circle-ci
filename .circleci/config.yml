@@ -12,6 +12,7 @@ main-only: &main-only
 version: 2.1
 orbs:
   aws-ecr: circleci/aws-ecr@6.15.2
+  aws-ecs: circleci/aws-ecs@1.4.0
 jobs:
   check_pull_request:
     machine:
@@ -48,17 +49,17 @@ jobs:
             - gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
             - gradle-repo-v1-{{ .Branch }}-
             - gradle-repo-v1-
-#      - run:
-#          name: Run tests
-#          command: ./gradlew clean test
-#      - run:
-#          name: Generate code coverage report
-#          command:
-#            ./gradlew jacocoTestReport
-#      - store_test_results:
-#          path: build/test-results/test
-#      - store_artifacts:
-#          path: build/jacocoHtml
+      - run:
+          name: Run tests
+          command: ./gradlew clean test
+      - run:
+          name: Generate code coverage report
+          command:
+            ./gradlew jacocoTestReport
+      - store_test_results:
+          path: build/test-results/test
+      - store_artifacts:
+          path: build/jacocoHtml
       - run:
           name: Build artifact
           command: ./gradlew build -x test
@@ -68,9 +69,6 @@ jobs:
           paths:
             - ~/.gradle
           key: gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
-      - run:
-          name: check build directory
-          command: ls -la build
       - persist_to_workspace:
           root: .
           paths:
@@ -84,23 +82,23 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: List folder
-          command: ls -la build/libs
-      - run:
           name: Build image
           command: docker build . --tag demo
 
 workflows:
   version: 2
-#  pull_request_check:
-#    jobs:
-#      - check_pull_request:
-#          <<: *main-ignore
+  pull_request_check:
+    jobs:
+      - check_pull_request:
+          <<: *main-ignore
   dev_deployment:
     jobs:
       - build_artifact:
           <<: *main-only
-      - build_image:
+      - aws-ecr/build-and-push-image:
+          attach-workspace: true
+          repo: test-circle-ci
+          tag: '${CIRCLE_SHA1}'
           requires:
             - build_artifact
           <<: *main-only
