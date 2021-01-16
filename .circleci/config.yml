@@ -68,11 +68,17 @@ jobs:
           paths:
             - ~/.gradle
           key: gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
+      - persist_to_workspace:
+          root: .
+          paths:
+            - build/libs/backend-core.jar
 
   build_image:
     machine:
       image: ubuntu-2004:202010-01
     steps:
+      - attach_workspace:
+          at: .
       - checkout
       - run:
           name: Build image
