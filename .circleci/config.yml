@@ -68,6 +68,9 @@ jobs:
           paths:
             - ~/.gradle
           key: gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle.kts" }}
+      - run:
+          name: check build directory
+          command: ls -la build
       - persist_to_workspace:
           root: .
           paths:
@@ -86,10 +89,10 @@ jobs:
 
 workflows:
   version: 2
-  pull_request_check:
-    jobs:
-      - check_pull_request:
-          <<: *main-ignore
+#  pull_request_check:
+#    jobs:
+#      - check_pull_request:
+#          <<: *main-ignore
   dev_deployment:
     jobs:
       - build_artifact:
