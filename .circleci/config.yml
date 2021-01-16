@@ -98,7 +98,7 @@ workflows:
       - aws-ecr/build-and-push-image:
           attach-workspace: true
           repo: test-circle-ci
-          tag: '${CIRCLE_BUILD_NUM}'
+          tag: << pipeline.number >>
           requires:
             - build_artifact
           <<: *main-only
