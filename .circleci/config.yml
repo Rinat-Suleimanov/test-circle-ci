@@ -99,15 +99,15 @@ workflows:
           <<: *main-ignore
   dev_deployment:
     jobs:
-      - build_artifact:
-          <<: *main-only
-      - aws-ecr/build-and-push-image:
-          attach-workspace: true
-          repo: test-circle-ci
-          tag: "0.<< pipeline.number >>"
-          requires:
-            - build_artifact
-          <<: *main-only
+#      - build_artifact:
+#          <<: *main-only
+#      - aws-ecr/build-and-push-image:
+#          attach-workspace: true
+#          repo: test-circle-ci
+#          tag: "0.<< pipeline.number >>"
+#          requires:
+#            - build_artifact
+#          <<: *main-only
       - create_tag:
           requires:
             - aws-ecr/build-and-push-image
