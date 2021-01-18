@@ -109,6 +109,6 @@ workflows:
 #            - build_artifact
 #          <<: *main-only
       - create_tag:
-          requires:
+#          requires:
 #            - aws-ecr/build-and-push-image
           <<: *main-only
