@@ -110,5 +110,5 @@ workflows:
 #          <<: *main-only
       - create_tag:
           requires:
-            - aws-ecr/build-and-push-image
+#            - aws-ecr/build-and-push-image
           <<: *main-only
