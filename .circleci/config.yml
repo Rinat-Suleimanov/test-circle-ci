@@ -73,6 +73,17 @@ jobs:
           root: .
           paths:
             - build/libs
+  create_tag:
+    machine:
+      image: ubuntu-2004:202010-01
+    steps:
+      - checkout
+      - run:
+          name: Git create tag
+          command: git tag -a "0.<< pipeline.number >>"
+      - run:
+          name: Git push tag
+          command: git push --tag
 
 workflows:
   version: 2
