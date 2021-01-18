@@ -79,6 +79,12 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Setup email
+          command: git config --global user.email "circle-ci@intentomatic.com"
+      - run:
+          name: Setup username
+          command: git config --global user.name "circle-ci"
+      - run:
           name: Git create tag
           command: git tag -a "0.<< pipeline.number >>"
       - run:
