@@ -86,7 +86,7 @@ jobs:
           command: git config --global user.name "circle-ci"
       - run:
           name: Git create tag
-          command: git tag -a "0.<< pipeline.number >>"
+          command: git tag -a "0.<< pipeline.number >>" -m ""
       - run:
           name: Git push tag
           command: git push --tag
